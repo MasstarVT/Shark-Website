@@ -7,6 +7,20 @@ An ASCII art aquarium of sharks and fish swimming around, live at **[shark.masst
 - Click (or tap) anywhere to drop in a new fish.
 - Respects `prefers-reduced-motion` by showing a still scene.
 
+## Stream screens
+
+Add text to the path and it shows up in the middle of the screen with a little bounce, which makes handy Starting Soon / BRB / ending screens (e.g. as an OBS browser source at 1920×1080):
+
+| URL | Shows |
+| --- | --- |
+| `/starting-soon` | **Starting Soon** |
+| `/brb` | **Be Right Back** |
+| `/ending` | **Thanks for Watching** |
+| `/brb/back-in-5-minutes` | **Be Right Back**, with "Back in 5 minutes" underneath |
+| `/anything-you-like` | **Anything You Like** |
+
+Dashes, underscores and `+` become spaces. All-lowercase text is capitalised automatically; include any capital letter (`/See-you-Tomorrow`) to keep your exact casing. Unknown paths go through `404.html`, which hands the path to the main page.
+
 Everything lives in a single `index.html` with no build step or dependencies. Open it in a browser to run it locally.
 
 ## Adding creatures

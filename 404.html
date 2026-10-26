@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Shark Sea</title>
+<style>body { margin: 0; background: #0a4f73; }</style>
+<!-- Any unknown path (like /starting-soon) loads the aquarium with that path as on-screen text. -->
+<script>
+  location.replace('/?p=' + encodeURIComponent(location.pathname.slice(1)) + location.hash);
+</script>
+</head>
+<body></body>
+</html>

@@ -99,24 +99,61 @@
     z-index: 6;
   }
 
-  #tag {
-    position: fixed;
-    right: 12px;
-    bottom: 4px;
-    margin: 0;
-    z-index: 10;
-    font-size: .85em;
-    color: rgba(196, 236, 255, .75);
-    text-shadow: 0 1px 2px #011421;
-  }
-
-  #tag a { color: inherit; text-decoration: none; }
-  #tag a:hover, #tag a:focus-visible { text-decoration: underline; }
-
   noscript pre { position: static; color: var(--shark); padding: 2em; }
 
+  #message {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    padding: 16px;
+    text-align: center;
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  #message[hidden] { display: none; }
+
+  #message::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 55% 30% at 50% 50%, rgba(1, 20, 33, .55), transparent 100%);
+    z-index: -1;
+  }
+
+  #message h2 {
+    margin: 0;
+    font-size: clamp(28px, 7vw, 110px);
+    line-height: 1.25;
+    letter-spacing: .04em;
+    color: #eaf8ff;
+    text-shadow: 0 0 .3em rgba(127, 227, 255, .55), 0 .06em 0 #04263d;
+  }
+
+  #message p {
+    margin: .8em 0 0;
+    font-size: clamp(14px, 2.4vw, 36px);
+    color: var(--foam);
+    opacity: .85;
+    text-shadow: 0 1px 3px #011421;
+  }
+
+  #message .word { display: inline-block; white-space: nowrap; }
+
+  #message .char {
+    display: inline-block;
+    animation: hop 2s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 90ms);
+  }
+
+  @keyframes hop {
+    0%, 50%, 100% { transform: translateY(0); }
+    25% { transform: translateY(-.2em); }
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    #rays { animation: none; }
+    #rays, #message .char { animation: none; }
   }
 </style>
 </head>
@@ -130,7 +167,7 @@
   <pre id="sand"></pre>
 </div>
 
-<p id="tag"><a href="https://github.com/MasstarVT/Shark-Website">shark.masstar.org</a><span id="hint"> · click to drop in a fish</span></p>
+<div id="message" hidden><h2></h2><p hidden></p></div>
 
 <noscript><pre>
                  |`.
@@ -208,11 +245,61 @@
   const sea = document.getElementById('sea');
   const surface = document.getElementById('surface');
   const sand = document.getElementById('sand');
-  const hint = document.getElementById('hint');
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  if (reduceMotion) hint.hidden = true;
-  else if (matchMedia('(pointer: coarse)').matches) hint.textContent = ' · tap to drop in a fish';
+  // Text screens: /starting-soon shows "Starting Soon", and an optional second
+  // segment becomes a subtitle (/brb/grabbing-a-snack). 404.html sends unknown
+  // paths here as ?p=<path>.
+  const ALIASES = { brb: 'Be Right Back', ending: 'Thanks for Watching', end: 'Thanks for Watching' };
+
+  // All-lowercase text gets capitalised (every word for titles, the first for subtitles);
+  // any capital letter keeps the text exactly as typed.
+  function readSegment(segment, everyWord) {
+    let text = segment.replace(/[-_+]/g, ' ');
+    try { text = decodeURIComponent(text); } catch { /* keep it as typed */ }
+    text = text.replace(/\s+/g, ' ').trim().slice(0, 80);
+    if (text !== text.toLowerCase()) return text;
+    return text.replace(everyWord ? /(^|\s)(\p{L})/gu : /^()(\p{L})/u, (m, s, ch) => s + ch.toUpperCase());
+  }
+
+  function showMessage() {
+    const path = new URLSearchParams(location.search).get('p');
+    if (path === null) return;
+    if (location.protocol.startsWith('http')) history.replaceState(null, '', '/' + path + location.hash);
+    const segments = path.split('/').filter(Boolean);
+    if (!segments.length) return;
+    const title = ALIASES[segments[0].toLowerCase()] || readSegment(segments[0], true);
+    const subtitle = segments[1] ? readSegment(segments.slice(1).join(' '), false) : '';
+    if (!title) return;
+
+    const box = document.getElementById('message');
+    const heading = box.querySelector('h2');
+    heading.setAttribute('aria-label', title);
+    let i = 0;
+    title.split(' ').forEach((word, w) => {
+      if (w) heading.append(' ');
+      const wordEl = document.createElement('span');
+      wordEl.className = 'word';
+      wordEl.setAttribute('aria-hidden', 'true');
+      for (const ch of word) {
+        const charEl = document.createElement('span');
+        charEl.className = 'char';
+        charEl.style.setProperty('--i', i++);
+        charEl.textContent = ch;
+        wordEl.append(charEl);
+      }
+      heading.append(wordEl);
+    });
+    if (subtitle) {
+      const sub = box.querySelector('p');
+      sub.textContent = subtitle;
+      sub.hidden = false;
+    }
+    box.hidden = false;
+    document.title = `${title} · Shark Sea`;
+  }
+
+  showMessage();
 
   // Characters that change when a drawing is flipped left-to-right.
   const FLIP = {
