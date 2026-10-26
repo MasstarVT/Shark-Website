@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shark Sea</title>
+<meta name="description" content="An ASCII art aquarium of sharks and fish swimming around.">
+<meta name="theme-color" content="#0a4f73">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦈</text></svg>">
+<style>
+  :root {
+    --shallow: #0a4f73;
+    --mid: #053550;
+    --deep: #011421;
+    --foam: #c4ecff;
+    --shark: #b9c9d6;
+    --weed: #3fae6a;
+    --weed-back: #23774a;
+    --sand: #c9ad7f;
+    --text: #8fc6e3;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; height: 100%; }
+
+  body {
+    background: linear-gradient(to bottom, var(--shallow) 0%, var(--mid) 45%, var(--deep) 100%);
+    color: var(--text);
+    font-family: ui-monospace, "Cascadia Mono", Consolas, "DejaVu Sans Mono", Menlo, monospace;
+    font-size: clamp(10px, 0.5vw + 8px, 16px);
+    line-height: 1.15;
+    overflow: hidden;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  #sea {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #rays {
+    position: absolute;
+    inset: 0 -20%;
+    background:
+      radial-gradient(ellipse at 50% -10%, rgba(170, 225, 255, .2), transparent 60%),
+      repeating-linear-gradient(105deg, transparent 0 70px, rgba(180, 230, 255, .035) 70px 140px);
+    pointer-events: none;
+    animation: sway 16s ease-in-out infinite alternate;
+  }
+
+  @keyframes sway {
+    from { transform: translateX(-4%); }
+    to { transform: translateX(4%); }
+  }
+
+  pre, .bubble {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: 0;
+    font: inherit;
+    white-space: pre;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .mover, .bubble { will-change: transform; }
+
+  .shark { color: var(--shark); z-index: 3; text-shadow: 0 0 10px rgba(160, 205, 235, .25); }
+  .fish { z-index: 4; }
+  .fish.far { font-size: .72em; opacity: .5; z-index: 1; }
+
+  .weed { top: auto; color: var(--weed); z-index: 2; }
+  .weed.back { color: var(--weed-back); z-index: 1; }
+
+  .bubble { color: var(--foam); opacity: .75; z-index: 5; }
+
+  #surface { color: var(--foam); opacity: .55; z-index: 5; }
+
+  #sand {
+    top: auto;
+    bottom: 0;
+    right: 0;
+    overflow: hidden;
+    color: var(--sand);
+    background: linear-gradient(to bottom, transparent, rgba(201, 173, 127, .14));
+    z-index: 6;
+  }
+
+  #tag {
+    position: fixed;
+    right: 12px;
+    bottom: 4px;
+    margin: 0;
+    z-index: 10;
+    font-size: .85em;
+    color: rgba(196, 236, 255, .75);
+    text-shadow: 0 1px 2px #011421;
+  }
+
+  #tag a { color: inherit; text-decoration: none; }
+  #tag a:hover, #tag a:focus-visible { text-decoration: underline; }
+
+  noscript pre { position: static; color: var(--shark); padding: 2em; }
+
+  @media (prefers-reduced-motion: reduce) {
+    #rays { animation: none; }
+  }
+</style>
+</head>
+<body>
+<h1 class="sr-only">Shark Sea</h1>
+<p class="sr-only">An animated aquarium drawn in ASCII art: sharks and fish swim back and forth while bubbles rise and seaweed sways.</p>
+
+<div id="sea" aria-hidden="true">
+  <div id="rays"></div>
+  <pre id="surface"></pre>
+  <pre id="sand"></pre>
+</div>
+
+<p id="tag"><a href="https://github.com/MasstarVT/Shark-Website">shark.masstar.org</a><span id="hint"> · click to drop in a fish</span></p>
+
+<noscript><pre>
+                 |`.
+ \`.             |  `.
+  \ `.      _.---'    `------.._
+   \  `._.-'          )))  o    `-._
+    >                         ___.-'
+   /  ,-.____         ___.--''
+  /  /       `----''''  /  /
+ /.-'                  '--'
+</pre></noscript>
+
+<!-- Creatures are drawn facing right; the script mirrors them to swim left. -->
+<script type="text/x-ascii" data-kind="shark" data-speed="0.85">
+                 |`.
+ \`.             |  `.
+  \ `.      _.---'    `------.._
+   \  `._.-'          )))  o    `-._
+    >                         ___.-'
+   /  ,-.____         ___.--''
+  /  /       `----''''  /  /
+ /.-'                  '--'
+</script>
+<script type="text/x-ascii" data-kind="shark" data-speed="0.9">
+                |`.
+\`.        _____|  `-._______
+ \ `.__.--'                  `-.._
+  >          )))    o           _>
+ / ,-'`--.______        ____.--'
+/.'             `------' / /
+                        '-'
+</script>
+<script type="text/x-ascii" data-kind="shark" data-speed="1.05">
+          |`.
+\`.  _____|  `-.____
+ \ `'        ))  o  `-._
+ /  ,-.______    ____.-'
+/.-'         `--' / /
+                 '-'
+</script>
+<script type="text/x-ascii" data-kind="fish" data-speed="1.3">
+><>
+</script>
+<script type="text/x-ascii" data-kind="fish" data-speed="1.15">
+><((('>
+</script>
+<script type="text/x-ascii" data-kind="fish" data-speed="1">
+   .----.
+|\.'  ) o`.
+|/`.  )   .'
+   `----'
+</script>
+<script type="text/x-ascii" data-kind="fish" data-speed="0.95">
+   .-.-.-.
+|\/ | |  o`.
+|/\_|_|___.'
+</script>
+<script type="text/x-ascii" data-kind="fish" data-speed="0.8">
+    ,^.
+|\ / ) \
+| >  ) o>
+|/ \ ) /
+    `v'
+</script>
+<script type="text/x-ascii" data-kind="fish" data-speed="1.2">
+><>    ><>
+    ><>
+ ><>     ><>
+</script>
+
+<script>
+(() => {
+  'use strict';
+
+  const sea = document.getElementById('sea');
+  const surface = document.getElementById('surface');
+  const sand = document.getElementById('sand');
+  const hint = document.getElementById('hint');
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (reduceMotion) hint.hidden = true;
+  else if (matchMedia('(pointer: coarse)').matches) hint.textContent = ' · tap to drop in a fish';
+
+  // Characters that change when a drawing is flipped left-to-right.
+  const FLIP = {
+    '<': '>', '>': '<', '(': ')', ')': '(', '[': ']', ']': '[', '{': '}', '}': '{',
+    '/': '\\', '\\': '/', '`': "'", "'": '`'
+  };
+  const FISH_COLORS = ['#ffb347', '#ffd84d', '#7fe3ff', '#ff8fab', '#b6f09c', '#c9a7ff', '#ff7b5c'];
+  const WAVES = ['~~^~~~~^^~~~~~^~~~~~~^~~', ' ~   ~~    ~  ~~~   ~   '];
+  const MAX_FISH = 60;
+
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const pick = list => list[Math.floor(Math.random() * list.length)];
+
+  function loadArt(kind) {
+    return [...document.querySelectorAll(`script[data-kind="${kind}"]`)].map(node => {
+      const lines = node.textContent.replace(/\r/g, '').split('\n');
+      while (lines.length && !lines[0].trim()) lines.shift();
+      while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
+      const width = Math.max(...lines.map(l => l.length));
+      const right = lines.map(l => l.padEnd(width));
+      const left = right.map(l => [...l].reverse().map(ch => FLIP[ch] || ch).join(''));
+      return { right: right.join('\n'), left: left.join('\n'), speed: Number(node.dataset.speed) || 1 };
+    });
+  }
+
+  const SHARKS = loadArt('shark');
+  const FISH = loadArt('fish');
+
+  let W = 0, H = 0, charW = 8, lineH = 16, swimTop = 0, swimBottom = 0;
+  const creatures = [];
+  const bubbles = [];
+  let weeds = [];
+
+  function measure() {
+    W = sea.clientWidth;
+    H = sea.clientHeight;
+    const probe = document.createElement('pre');
+    probe.style.visibility = 'hidden';
+    probe.textContent = 'M'.repeat(50) + '\nM';
+    sea.appendChild(probe);
+    charW = probe.offsetWidth / 50;
+    lineH = probe.offsetHeight / 2;
+    probe.remove();
+  }
+
+  function buildSand() {
+    const cols = Math.ceil(W / charW) + 1;
+    const grains = " .,:'. . ,  .  ";
+    const rows = ['_'.repeat(cols)];
+    for (let r = 0; r < 2; r++) {
+      let row = '';
+      for (let i = 0; i < cols; i++) row += Math.random() < 0.01 ? pick(['@', '*', 'o']) : pick(grains);
+      rows.push(row);
+    }
+    sand.textContent = rows.join('\n');
+  }
+
+  function drawSurface(t) {
+    const cols = Math.ceil(W / charW) + 2;
+    surface.textContent = WAVES.map((pattern, i) => {
+      const shift = Math.floor(t * (i ? 3 : 5)) % pattern.length;
+      const start = i ? (pattern.length - shift) % pattern.length : shift;
+      return pattern.repeat(Math.ceil(cols / pattern.length) + 2).slice(start, start + cols);
+    }).join('\n');
+  }
+
+  function buildWeeds() {
+    weeds.forEach(w => w.el.remove());
+    weeds = [];
+    const count = Math.max(3, Math.round(W / 110));
+    const maxRows = Math.max(5, Math.min(14, Math.floor((swimBottom - swimTop) / lineH * 0.35)));
+    for (let i = 0; i < count; i++) {
+      const rows = Math.floor(rand(4, maxRows + 1));
+      const a = [], b = [];
+      for (let r = 0; r < rows; r++) {
+        a.push(r % 2 ? ' )' : '(');
+        b.push(r % 2 ? '(' : ' )');
+      }
+      const el = document.createElement('pre');
+      el.className = Math.random() < 0.4 ? 'weed back' : 'weed';
+      el.style.left = `${(i + rand(0.15, 0.85)) * W / count}px`;
+      el.style.bottom = `${sand.offsetHeight - lineH * 0.7}px`;
+      el.textContent = a.join('\n');
+      sea.appendChild(el);
+      weeds.push({ el, frames: [a.join('\n'), b.join('\n')], period: rand(0.6, 1.1), offset: rand(0, 2), frame: 0 });
+    }
+  }
+
+  function clampY(c, y) {
+    const lo = swimTop + c.bob;
+    return Math.min(Math.max(y, lo), Math.max(lo, swimBottom - c.h - c.bob));
+  }
+
+  // (Re)assigns a creature's look and starting point. Without an x it starts just off-screen.
+  function dress(c, { x, y, dir, near } = {}) {
+    const art = pick(c.type === 'shark' ? SHARKS : FISH);
+    c.dir = dir ?? (Math.random() < 0.5 ? 1 : -1);
+    c.far = c.type === 'fish' && !near && Math.random() < 0.3;
+    c.el.className = `mover ${c.type}${c.far ? ' far' : ''}`;
+    c.el.style.color = c.type === 'fish' ? pick(FISH_COLORS) : '';
+    c.el.textContent = c.dir > 0 ? art.right : art.left;
+    c.w = c.el.offsetWidth;
+    c.h = c.el.offsetHeight;
+    c.speed = (c.type === 'shark' ? rand(26, 44) : rand(38, 90)) * art.speed * (c.far ? 0.55 : 1);
+    c.bob = c.type === 'shark' ? rand(2, 6) : rand(3, 12);
+    c.freq = c.type === 'shark' ? rand(0.4, 0.7) : rand(0.9, 1.8);
+    c.baseY = clampY(c, y ?? rand(swimTop, swimBottom - c.h));
+    c.y = c.baseY;
+    c.x = x ?? (c.dir > 0 ? -c.w - rand(10, W * 0.6) : W + rand(10, W * 0.6));
+  }
+
+  function spawn(type, opts) {
+    const c = { el: document.createElement('pre'), type, phase: rand(0, Math.PI * 2) };
+    sea.appendChild(c.el);
+    creatures.push(c);
+    dress(c, opts);
+    return c;
+  }
+
+  function place(c) {
+    c.el.style.transform = `translate3d(${c.x.toFixed(1)}px,${c.y.toFixed(1)}px,0)`;
+  }
+
+  function populate() {
+    const wantSharks = W < 640 ? 1 : W < 1200 ? 2 : 3;
+    const wantFish = Math.round(Math.min(26, Math.max(8, W * H / 50000)));
+    let sharks = creatures.filter(c => c.type === 'shark').length;
+    let fish = creatures.length - sharks;
+    while (sharks++ < wantSharks) place(spawn('shark', { x: rand(0, W * 0.8) }));
+    while (fish++ < wantFish) place(spawn('fish', { x: rand(-20, W) }));
+  }
+
+  function addBubble(x, y) {
+    if (bubbles.length >= 70) return;
+    const el = document.createElement('span');
+    el.className = 'bubble';
+    el.textContent = '.';
+    sea.appendChild(el);
+    bubbles.push({ el, x, y, y0: y, ch: '.', vy: rand(22, 48), amp: rand(1.5, 5), phase: rand(0, 6.3) });
+  }
+
+  function swim(dt, t) {
+    const sharks = creatures.filter(c => c.type === 'shark');
+    for (const c of creatures) {
+      let pace = 1;
+      if (c.type === 'fish' && !c.far) {
+        // Fish dart away when a shark gets close.
+        for (const s of sharks) {
+          const dx = (c.x + c.w / 2) - (s.x + s.w / 2);
+          const dy = (c.y + c.h / 2) - (s.y + s.h / 2);
+          if (Math.abs(dx) < s.w * 0.7 + 60 && Math.abs(dy) < s.h * 0.9 + 30) {
+            pace = 2.4;
+            c.baseY = clampY(c, c.baseY + Math.sign(dy || 1) * 55 * dt);
+          }
+        }
+      }
+      c.x += c.dir * c.speed * pace * dt;
+      c.y = c.baseY + Math.sin(t * c.freq + c.phase) * c.bob;
+      if (c.dir > 0 ? c.x > W + 30 : c.x < -c.w - 30) dress(c);
+      else if (Math.random() < dt * 0.05) addBubble(c.dir > 0 ? c.x + c.w : c.x, c.y + c.h * 0.4);
+      place(c);
+    }
+  }
+
+  function rise(dt, t) {
+    for (let i = bubbles.length - 1; i >= 0; i--) {
+      const b = bubbles[i];
+      b.y -= b.vy * dt;
+      if (b.y < swimTop - lineH) {
+        b.el.remove();
+        bubbles.splice(i, 1);
+        continue;
+      }
+      const risen = b.y0 - b.y;
+      const ch = risen < 50 ? '.' : risen < 140 ? 'o' : 'O';
+      if (ch !== b.ch) b.el.textContent = b.ch = ch;
+      const x = b.x + Math.sin(t * 2.2 + b.phase) * b.amp;
+      b.el.style.transform = `translate3d(${x.toFixed(1)}px,${b.y.toFixed(1)}px,0)`;
+    }
+  }
+
+  function layout() {
+    measure();
+    buildSand();
+    drawSurface(performance.now() / 1000);
+    swimTop = surface.offsetHeight + lineH * 0.5;
+    swimBottom = H - sand.offsetHeight - lineH * 0.3;
+    buildWeeds();
+    for (const c of creatures) {
+      c.w = c.el.offsetWidth;
+      c.h = c.el.offsetHeight;
+      c.baseY = clampY(c, c.baseY);
+    }
+    populate();
+    if (reduceMotion) creatures.forEach(c => { c.y = c.baseY; place(c); });
+  }
+
+  let last = performance.now();
+  let lastSurface = 0;
+  function frame(now) {
+    const dt = Math.min(0.1, (now - last) / 1000);
+    const t = now / 1000;
+    last = now;
+    swim(dt, t);
+    if (Math.random() < dt * W / 900) addBubble(rand(0, W), swimBottom);
+    rise(dt, t);
+    if (t - lastSurface > 0.2) {
+      drawSurface(t);
+      lastSurface = t;
+    }
+    for (const w of weeds) {
+      const f = Math.floor(t / w.period + w.offset) % 2;
+      if (f !== w.frame) w.el.textContent = w.frames[w.frame = f];
+    }
+    requestAnimationFrame(frame);
+  }
+
+  let resizeTimer;
+  addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(layout, 150);
+  });
+
+  layout();
+
+  if (!reduceMotion) {
+    sea.addEventListener('pointerdown', e => {
+      const c = spawn('fish', { near: true, dir: e.clientX < W / 2 ? 1 : -1 });
+      c.x = e.clientX - c.w / 2;
+      c.y = c.baseY = clampY(c, e.clientY - c.h / 2);
+      place(c);
+      for (let i = 0; i < 4; i++) addBubble(e.clientX + rand(-8, 8), e.clientY + rand(-4, 4));
+      const fish = creatures.filter(f => f.type === 'fish');
+      if (fish.length > MAX_FISH) {
+        fish[0].el.remove();
+        creatures.splice(creatures.indexOf(fish[0]), 1);
+      }
+    });
+    requestAnimationFrame(frame);
+  }
+})();
+</script>
+</body>
+</html>
