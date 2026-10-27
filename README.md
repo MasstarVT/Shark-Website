@@ -5,6 +5,7 @@ An ASCII art aquarium of sharks and fish swimming around, live at **[shark.masst
 - Sharks cruise back and forth, and fish dart away when one gets close.
 - Manta rays flap, sea turtles paddle, and jellyfish pulse as they drift, alongside swordfish, pufferfish, clownfish and more.
 - Every creature is animated: tails swish, fins flutter and the pufferfish puffs.
+- Crabs, a hermit crab, an octopus, a snail and a starfish walk along the sand, stopping now and then and sometimes turning back.
 - Bubbles rise, seaweed sways, and the surface ripples.
 - Click (or tap) anywhere to drop in a new fish.
 - Respects `prefers-reduced-motion` by showing a still scene.
@@ -27,7 +28,7 @@ Everything lives in a single `index.html` with no build step or dependencies. Op
 
 ## Adding creatures
 
-Each creature is a `<script type="text/x-ascii">` block in `index.html`, drawn facing right. The page mirrors it automatically for fish swimming left, so new art just needs a new block with `data-kind="fish"` or `data-kind="shark"`. Optional extras:
+Each creature is a `<script type="text/x-ascii">` block in `index.html`, drawn facing right. The page mirrors it automatically for fish swimming left, so new art just needs a new block with `data-kind="fish"`, `data-kind="shark"` or `data-kind="crawler"` (walks along the sand). Optional extras:
 
 - `data-speed`: speed multiplier (e.g. `0.5` for slow drifters).
 - `data-color`: a fixed colour instead of a random one.
