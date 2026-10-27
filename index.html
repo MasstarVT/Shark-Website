@@ -371,7 +371,7 @@
   };
   const FISH_COLORS = ['#ffb347', '#ffd84d', '#7fe3ff', '#ff8fab', '#b6f09c', '#c9a7ff', '#ff7b5c'];
   const WAVES = ['~~^~~~~^^~~~~~^~~~~~~^~~', ' ~   ~~    ~  ~~~   ~   '];
-  const MAX_FISH = 60;
+  const MAX_FISH = 80;
 
   const rand = (a, b) => a + Math.random() * (b - a);
   const pick = list => list[Math.floor(Math.random() * list.length)];
@@ -491,7 +491,7 @@
     c.freq = c.type === 'shark' ? rand(0.4, 0.7) : rand(0.9, 1.8);
     c.baseY = clampY(c, y ?? rand(swimTop, swimBottom - c.h));
     c.y = c.baseY;
-    c.x = x ?? (c.dir > 0 ? -c.w - rand(10, W * 0.6) : W + rand(10, W * 0.6));
+    c.x = x ?? (c.dir > 0 ? -c.w - rand(10, W * 0.3) : W + rand(10, W * 0.3));
   }
 
   function spawn(type, opts) {
@@ -508,7 +508,7 @@
 
   function populate() {
     const wantSharks = W < 640 ? 1 : W < 1200 ? 2 : 3;
-    const wantFish = Math.round(Math.min(26, Math.max(8, W * H / 50000)));
+    const wantFish = Math.round(Math.min(40, Math.max(12, W * H / 32000)));
     let sharks = creatures.filter(c => c.type === 'shark').length;
     let fish = creatures.length - sharks;
     while (sharks++ < wantSharks) place(spawn('shark', { x: rand(0, W * 0.8) }));
