@@ -4,6 +4,7 @@ An ASCII art aquarium of sharks and fish swimming around, live at **[shark.masst
 
 - Sharks cruise back and forth, and fish dart away when one gets close.
 - Manta rays flap, sea turtles paddle, and jellyfish pulse as they drift, alongside swordfish, pufferfish, clownfish and more.
+- Every creature is animated: tails swish, fins flutter and the pufferfish puffs.
 - Bubbles rise, seaweed sways, and the surface ripples.
 - Click (or tap) anywhere to drop in a new fish.
 - Respects `prefers-reduced-motion` by showing a still scene.
