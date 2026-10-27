@@ -275,14 +275,10 @@
  / \ ) /
     'v`
 </script>
-<script type="text/x-ascii" data-kind="fish" data-speed="1.2" data-flap="0.35">
+<script type="text/x-ascii" data-kind="fish" data-speed="1.2" data-flap="0.25" data-school>
 ><>    ><>
     ><>
  ><>     ><>
-%
-}<>    ><>
-    }<>
- ><>     }<>
 </script>
 <!-- Optional extras: data-color fixes the colour, data-calm means it never flees sharks,
      and frames separated by a "%" line play in turn every data-flap seconds. -->
@@ -429,6 +425,7 @@
     '<': '>', '>': '<', '(': ')', ')': '(', '[': ']', ']': '[', '{': '}', '}': '{',
     '/': '\\', '\\': '/', '`': "'", "'": '`'
   };
+  const mirror = text => text.split('\n').map(l => [...l].reverse().map(ch => FLIP[ch] || ch).join('')).join('\n');
   const FISH_COLORS = ['#ffb347', '#ffd84d', '#7fe3ff', '#ff8fab', '#b6f09c', '#c9a7ff', '#ff7b5c'];
   const WAVES = ['~~^~~~~^^~~~~~^~~~~~~^~~', ' ~   ~~    ~  ~~~   ~   '];
   const MAX_FISH = 80;
@@ -450,22 +447,28 @@
       }
       const width = Math.max(...lines.map(l => l.length));
       const height = Math.max(...frames.map(f => f.length));
-      const { speed, flap, color, calm } = node.dataset;
+      const { speed, flap, color, calm, school } = node.dataset;
       return {
         frames: frames.map(f => {
           const right = [...f, ...Array(height - f.length).fill('')].map(l => l.padEnd(width));
-          const left = right.map(l => [...l].reverse().map(ch => FLIP[ch] || ch).join(''));
-          return { right: right.join('\n'), left: left.join('\n') };
+          return { right: right.join('\n'), left: mirror(right.join('\n')) };
         }),
         speed: Number(speed) || 1,
         flap: Number(flap) || 0.6,
         color,
-        calm: calm !== undefined
+        calm: calm !== undefined,
+        school: school !== undefined
       };
     });
   }
 
   const drawing = c => c.art.frames[c.frame][c.dir > 0 ? 'right' : 'left'];
+
+  // Schools (data-school) flick a random handful of tails on each beat instead of all at once.
+  function wag(c) {
+    const right = c.art.frames[0].right.replace(/><>/g, fish => Math.random() < 0.4 ? '}<>' : fish);
+    return c.dir > 0 ? right : mirror(right);
+  }
 
   const SHARKS = loadArt('shark');
   const FISH = loadArt('fish');
@@ -601,11 +604,12 @@
       }
       c.x += c.dir * c.speed * pace * dt;
       c.y = c.baseY + Math.sin(t * c.freq + c.phase) * c.bob;
-      if (c.art.frames.length > 1) {
-        const frame = Math.floor(t / c.art.flap + c.phase) % c.art.frames.length;
-        if (frame !== c.frame) {
-          c.frame = frame;
-          c.el.textContent = drawing(c);
+      if (c.art.school || c.art.frames.length > 1) {
+        const beat = Math.floor(t / c.art.flap + c.phase);
+        if (beat !== c.beat) {
+          c.beat = beat;
+          c.frame = beat % c.art.frames.length;
+          c.el.textContent = c.art.school ? wag(c) : drawing(c);
         }
       }
       if (c.dir > 0 ? c.x > W + 30 : c.x < -c.w - 30) dress(c);

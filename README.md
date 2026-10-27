@@ -32,6 +32,7 @@ Each creature is a `<script type="text/x-ascii">` block in `index.html`, drawn f
 - `data-speed`: speed multiplier (e.g. `0.5` for slow drifters).
 - `data-color`: a fixed colour instead of a random one.
 - `data-calm`: never darts away from sharks.
+- `data-school`: for a group of `><>` fish; a random handful flick their tails on each beat.
 - Animation frames: separate them with a line containing only `%`; they play in turn every `data-flap` seconds (default `0.6`). Blank lines inside a frame are kept so frames can line up.
 
 ## Hosting
