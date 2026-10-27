@@ -3,6 +3,7 @@
 An ASCII art aquarium of sharks and fish swimming around, live at **[shark.masstar.org](https://shark.masstar.org)**.
 
 - Sharks cruise back and forth, and fish dart away when one gets close.
+- Manta rays flap, sea turtles paddle, and jellyfish pulse as they drift, alongside swordfish, pufferfish, clownfish and more.
 - Bubbles rise, seaweed sways, and the surface ripples.
 - Click (or tap) anywhere to drop in a new fish.
 - Respects `prefers-reduced-motion` by showing a still scene.
@@ -25,7 +26,12 @@ Everything lives in a single `index.html` with no build step or dependencies. Op
 
 ## Adding creatures
 
-Each creature is a `<script type="text/x-ascii">` block in `index.html`, drawn facing right. The page mirrors it automatically for fish swimming left, so new art just needs a new block with `data-kind="fish"` or `data-kind="shark"` (and an optional `data-speed` multiplier).
+Each creature is a `<script type="text/x-ascii">` block in `index.html`, drawn facing right. The page mirrors it automatically for fish swimming left, so new art just needs a new block with `data-kind="fish"` or `data-kind="shark"`. Optional extras:
+
+- `data-speed`: speed multiplier (e.g. `0.5` for slow drifters).
+- `data-color`: a fixed colour instead of a random one.
+- `data-calm`: never darts away from sharks.
+- Animation frames: separate them with a line containing only `%`; they play in turn every `data-flap` seconds (default `0.6`). Blank lines inside a frame are kept so frames can line up.
 
 ## Hosting
 

@@ -237,6 +237,69 @@
     ><>
  ><>     ><>
 </script>
+<!-- Optional extras: data-color fixes the colour, data-calm means it never flees sharks,
+     and frames separated by a "%" line play in turn every data-flap seconds. -->
+<script type="text/x-ascii" data-kind="fish" data-speed="0.7" data-flap="0.45" data-color="#a3bdd8">
+                   _
+                  / `.
+                .'    `.
+          __..-'        `-.
+~---------             o  )=
+          `--.._        _.-'
+                `.    .'
+                  \_.'
+%
+
+
+                _.-'`-._
+          __..-'        `-.
+~---------             o  )=
+          `--.._        _.-'
+                `-._.-'
+</script>
+<script type="text/x-ascii" data-kind="fish" data-speed="0.55" data-flap="0.5" data-color="#8fd18a">
+         _____
+      .-' \_/ `-.    __
+    _/ \_/ \_/ \_\__/ o\
+   '---.________.---`--'
+        /_/    /_/
+%
+         _____
+      .-' \_/ `-.    __
+    _/ \_/ \_/ \_\__/ o\
+   '---.________.---`--'
+         \_\    \_\
+</script>
+<script type="text/x-ascii" data-kind="fish" data-speed="0.3" data-flap="0.7" data-color="#f0a6ff" data-calm>
+   .-"""-.
+  /       \
+  \_._._._/
+   ( ) ( )
+   ) ( ) (
+   ( ) ( )
+%
+    .-"-.
+   /     \
+  (_._._._)
+    ) ( )
+    ( ) (
+     ) (
+</script>
+<script type="text/x-ascii" data-kind="fish" data-speed="1.4" data-color="#8ab8ff">
+         |`.
+|\  _____|  `-.______
+| >'    ))     o     `=========-
+|/`-.______________.-'
+         /
+</script>
+<script type="text/x-ascii" data-kind="fish" data-speed="0.55" data-color="#f2d06b">
+    \ | /
+ |\.-'''-.
+ | :  :  o\
+ | :  :  ,>
+ |/`-...-'
+    / | \
+</script>
 
 <script>
 (() => {
@@ -313,17 +376,36 @@
   const rand = (a, b) => a + Math.random() * (b - a);
   const pick = list => list[Math.floor(Math.random() * list.length)];
 
+  // A drawing can hold several animation frames separated by a line containing only "%".
+  // Blank lines inside a frame are kept so the frames line up with each other.
   function loadArt(kind) {
     return [...document.querySelectorAll(`script[data-kind="${kind}"]`)].map(node => {
       const lines = node.textContent.replace(/\r/g, '').split('\n');
       while (lines.length && !lines[0].trim()) lines.shift();
       while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
+      const frames = [[]];
+      for (const line of lines) {
+        if (line.trim() === '%') frames.push([]);
+        else frames[frames.length - 1].push(line);
+      }
       const width = Math.max(...lines.map(l => l.length));
-      const right = lines.map(l => l.padEnd(width));
-      const left = right.map(l => [...l].reverse().map(ch => FLIP[ch] || ch).join(''));
-      return { right: right.join('\n'), left: left.join('\n'), speed: Number(node.dataset.speed) || 1 };
+      const height = Math.max(...frames.map(f => f.length));
+      const { speed, flap, color, calm } = node.dataset;
+      return {
+        frames: frames.map(f => {
+          const right = [...f, ...Array(height - f.length).fill('')].map(l => l.padEnd(width));
+          const left = right.map(l => [...l].reverse().map(ch => FLIP[ch] || ch).join(''));
+          return { right: right.join('\n'), left: left.join('\n') };
+        }),
+        speed: Number(speed) || 1,
+        flap: Number(flap) || 0.6,
+        color,
+        calm: calm !== undefined
+      };
     });
   }
+
+  const drawing = c => c.art.frames[c.frame][c.dir > 0 ? 'right' : 'left'];
 
   const SHARKS = loadArt('shark');
   const FISH = loadArt('fish');
@@ -395,12 +477,13 @@
 
   // (Re)assigns a creature's look and starting point. Without an x it starts just off-screen.
   function dress(c, { x, y, dir, near } = {}) {
-    const art = pick(c.type === 'shark' ? SHARKS : FISH);
+    const art = c.art = pick(c.type === 'shark' ? SHARKS : FISH);
+    c.frame = 0;
     c.dir = dir ?? (Math.random() < 0.5 ? 1 : -1);
     c.far = c.type === 'fish' && !near && Math.random() < 0.3;
     c.el.className = `mover ${c.type}${c.far ? ' far' : ''}`;
-    c.el.style.color = c.type === 'fish' ? pick(FISH_COLORS) : '';
-    c.el.textContent = c.dir > 0 ? art.right : art.left;
+    c.el.style.color = art.color || (c.type === 'fish' ? pick(FISH_COLORS) : '');
+    c.el.textContent = drawing(c);
     c.w = c.el.offsetWidth;
     c.h = c.el.offsetHeight;
     c.speed = (c.type === 'shark' ? rand(26, 44) : rand(38, 90)) * art.speed * (c.far ? 0.55 : 1);
@@ -445,7 +528,7 @@
     const sharks = creatures.filter(c => c.type === 'shark');
     for (const c of creatures) {
       let pace = 1;
-      if (c.type === 'fish' && !c.far) {
+      if (c.type === 'fish' && !c.far && !c.art.calm) {
         // Fish dart away when a shark gets close.
         for (const s of sharks) {
           const dx = (c.x + c.w / 2) - (s.x + s.w / 2);
@@ -458,6 +541,13 @@
       }
       c.x += c.dir * c.speed * pace * dt;
       c.y = c.baseY + Math.sin(t * c.freq + c.phase) * c.bob;
+      if (c.art.frames.length > 1) {
+        const frame = Math.floor(t / c.art.flap + c.phase) % c.art.frames.length;
+        if (frame !== c.frame) {
+          c.frame = frame;
+          c.el.textContent = drawing(c);
+        }
+      }
       if (c.dir > 0 ? c.x > W + 30 : c.x < -c.w - 30) dress(c);
       else if (Math.random() < dt * 0.05) addBubble(c.dir > 0 ? c.x + c.w : c.x, c.y + c.h * 0.4);
       place(c);
